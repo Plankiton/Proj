@@ -75,7 +75,7 @@ if len(args)>0:
             exit(1)
     elif args[0] in ['-d', '--delete']:
         args = args[1:]
-        if len(args)==1:
+        if len(args)>=1:
             for arg in args:
                 subdir = ''
                 if '/' in arg:
@@ -90,11 +90,11 @@ if len(args)>0:
                     i = i.strip()
 
                     if arg.lower() in i.lower():
-                        print('removing', i)
-                        exit(
-                            system(f'rm -rf "{i}"')
-                        )
-
+                        print(
+                            f'removing {i}' if not system(f'rm -rf "{i}"') \
+                            else f'\033[1;31m[!]\033[00m Delete "{i}" is impossible!',
+                            file=e)
+            exit(0)
         else:
             print(f'\033[1;31m[!]\033[00m must be 2 arguments : --delete <name>', file=e)
             exit(1)
