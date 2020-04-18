@@ -24,7 +24,7 @@ Usage:
   └── [job|proj|lscr|book|test] <name>
 
  -d, --delete          To delete a project.
-  └── [job|proj|lscr|book|test] <name>
+  └── <name>
 
  -r, --run             Run a command with project
   └── <cmd> <project>  folder as argument.
@@ -54,6 +54,8 @@ if '-r' in args or '--run' in args:
     cmd = args[pos].strip()
     del args[pos]
 
+
+proj_list = popen('find "$HOME/Create/"{Jobs,Projects,Books,LitleScripts,Tests} -maxdepth 1 -type d').readlines()
 if len(args)>0:
     if args[0] in ['-c','--create']:
         if len(args)>=3:
@@ -72,23 +74,31 @@ if len(args)>0:
             print(f'\033[1;31m[!]\033[00m must be 3 arguments : --create [job|proj|lscr|book|test] <name>', file=e)
             exit(1)
     elif args[0] in ['-d', '--delete']:
-        if len(args)>=3:
-            if ((args[1][0].lower() in categories) and
-                    (args[1].lower() in categories[args[1][0].lower()].lower())):
-                args[1] = categories[args[1][0].lower()]
-            else:
-                print(f'\033[1;31m[!]\033[00m the category \"{args[1]}\" do not exists!', file=e)
-                exit(1)
-            proj_dir = f'{projdir}/{args[1]}/{args[2]}'
-            print('removing', proj_dir)
-            exit(
-                system(f'rm -rf "{proj_dir}"')
-            )
+        args = args[1:]
+        if len(args)==1:
+            for arg in args:
+                subdir = ''
+                if '/' in arg:
+                    subdir = '/'.join(arg.split('/')[1:])
+                    arg = arg.split('/')[0]
+
+                if [i.lower() for i in proj_list].count(arg) > 1:
+                    print(f'\033[1;31m[!]\033[00m the project \"{arg}\" are replicated on list, you need to be most especific!', file=e)
+                    exit(1)
+
+                for i in proj_list:
+                    i = i.strip()
+
+                    if arg.lower() in i.lower():
+                        print('removing', i)
+                        exit(
+                            system(f'rm -rf "{i}"')
+                        )
+
         else:
-            print(f'\033[1;31m[!]\033[00m must be 3 arguments : --delete [job|proj|lscr|book|test] <name>', file=e)
+            print(f'\033[1;31m[!]\033[00m must be 2 arguments : --delete <name>', file=e)
             exit(1)
 
-    proj_list = popen('find "$HOME/Create/"{Jobs,Projects,Books,LitleScripts,Tests} -maxdepth 1 -type d').readlines()
     if '-l' in args:
         if len(args) > 1:
             if args[args.index('-l')+1][0]=='c':
