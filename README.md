@@ -2,7 +2,7 @@
 
 A simple tool created for to manager project folders on my desktop.
 
-This tool can to search into a project folder and to create, delete, list and run some command with the project folder as argument.
+This tool can to search into a project folder and to create, delete, list or run some command with the project folder as argument.
 
 ## Configuration
 
