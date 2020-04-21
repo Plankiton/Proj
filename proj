@@ -111,13 +111,25 @@ if len(args)>0:
                 print(i[len(i)-1].strip()+':')
         exit(0)
 
+    p = 0
     for arg in args:
         subdir = ''
         if '/' in arg:
             subdir = '/'.join(arg.split('/')[1:])
             arg = arg.split('/')[0]
 
-        if [i.lower() for i in proj_list].count(arg) > 1:
+        arg_is_cat = False
+        for cat in categories:
+            if (arg.lower() in categories[cat].lower()
+                    and len(args) > p+1):
+                arg = f'{categories[cat]}/{args[p+1]}'
+                del args[p+1]
+            arg_is_cat = True
+
+
+        search_arg = [(True if (arg.lower() in i.lower()) else False)
+                      for i in proj_list]
+        if not arg_is_cat and search_arg.count(True) > 1:
             print(f'\033[1;31m[!]\033[00m the project \"{arg}\" are replicated on list, you need to be most especific!', file=e)
             exit(1)
 
@@ -132,6 +144,7 @@ if len(args)>0:
                     exit(
                         system(f'{cmd} "{i}/{subdir}"')
                     )
+        p += 1
 
         print(f'\033[1;31m[!]\033[00m the project \"{arg}\" do not exists!', file=e)
         exit(1)
